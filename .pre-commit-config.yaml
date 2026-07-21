@@ -1,0 +1,144 @@
+# Git hooks for the skills repo, orchestrated by the pre-commit
+# framework. Install with:
+#
+#   uv sync
+#   uv run pre-commit install \
+#     --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+#
+# Fast checks (format/lint/markdown) run at commit time; the slower
+# type checkers and tests run at push time -- mirroring the split used
+# in prtop's lefthook config.
+
+minimum_pre_commit_version: "3.5.0"
+
+# Provision an isolated, modern node for node-based hooks (markdownlint)
+# instead of using the contributor's system node. This keeps the repo
+# working regardless of the local node version -- the same broad-
+# compatibility rationale behind targeting Python 3.9.
+default_language_version:
+  node: "22.11.0"
+
+repos:
+  # --- generic hygiene -----------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$' # markdownlint owns markdown trailing whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # --- conventional commits (mandatory) ------------------------------------
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        # Allowed types mirror prtop's commitlint type-enum.
+        args:
+          - --strict
+          - --
+          - feat
+          - fix
+          - docs
+          - refactor
+          - perf
+          - test
+          - build
+          - style
+          - ci
+          - revert
+          - chore
+
+  # --- markdown format + lint (all *.md) -----------------------------------
+  # mdformat runs FIRST: it aligns/pads GFM tables and reflows prose to
+  # <=80 cols (--wrap 80), which markdownlint can only flag, not fix.
+  # Provisioned in the uv dev group, so run it through `uv run` like the
+  # other Python-hosted tools rather than pre-commit's own venv.
+  - repo: local
+    hooks:
+      - id: mdformat
+        name: mdformat (align tables, wrap prose at 80)
+        language: system
+        entry: uv run mdformat --wrap 80
+        types: [markdown]
+
+  # markdownlint then lints the freshly formatted output (incl. MD060,
+  # which gates table alignment). Local node hook installing ONLY the
+  # published markdownlint-cli2 package (runtime deps only). The upstream
+  # pre-commit hook instead installs the repo with its devDependencies
+  # (eslint, etc.), whose node-engine constraints break on common node
+  # versions. Pinned to the newest release supporting node 20 LTS
+  # (v0.23.0+ needs node 22). Config auto-discovered from
+  # .markdownlint-cli2.jsonc.
+  - repo: local
+    hooks:
+      - id: markdownlint-cli2
+        name: markdownlint-cli2
+        language: node
+        additional_dependencies: ["markdownlint-cli2@0.22.1"]
+        entry: markdownlint-cli2
+        types: [markdown]
+
+  # --- python: ruff lint + format ------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.21
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # --- python syntax floor + type checkers + tests (pre-push) --------------
+  - repo: local
+    hooks:
+      - id: py-compile
+        name: py-compile (3.9 syntax floor, all tracked *.py)
+        entry: bash -c 'git ls-files -z "*.py" | xargs -0 uv run python -m py_compile'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: pyright
+        name: pyright
+        entry: uv run pyright
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [pre-push]
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [pre-push]
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+  # --- github actions supply-chain audit (pre-push) ------------------------
+  # Catches unpinned/unsafe `uses:` locally before CI does. Shares the
+  # hash-pin policy in .github/zizmor.yml with the zizmor CI job.
+  #
+  # Run via `uvx` rather than the upstream zizmorcore/zizmor-pre-commit
+  # repo: that package requires Python >= 3.10, which pre-commit cannot
+  # satisfy from this repo's 3.9 floor. uvx provisions its own managed
+  # interpreter for the pinned zizmor, independent of the 3.9 venv.
+  # --offline keeps it fast and tokenless; the zizmor CI job runs the
+  # full online audit. Config auto-discovered from .github/zizmor.yml.
+  - repo: local
+    hooks:
+      - id: zizmor
+        name: zizmor (github actions static analysis)
+        language: system
+        entry: uvx zizmor@1.27.0 --offline
+        files: ^\.github/workflows/.*\.ya?ml$
+        stages: [pre-push]

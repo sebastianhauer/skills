@@ -1,0 +1,32 @@
+{
+  "name": "psicode",
+  "interface": {
+    "displayName": "psicode"
+  },
+  "plugins": [
+    {
+      "name": "conventional-commits",
+      "source": {
+        "source": "local",
+        "path": "./plugins/conventional-commits"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "skill-authoring",
+      "source": {
+        "source": "local",
+        "path": "./plugins/skill-authoring"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

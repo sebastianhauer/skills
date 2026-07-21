@@ -1,0 +1,57 @@
+name: Commit messages
+
+on:
+  pull_request:
+  merge_group:
+
+# Deny by default; the one job re-grants only what it needs.
+permissions: {}
+
+concurrency:
+  group: commit-messages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
+
+jobs:
+  conventional-commits:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout + git log over the PR range
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: true
+      - run: uv sync
+      - name: Check commit messages are Conventional Commits
+        # SHAs come in via env (never interpolated into the script);
+        # each message is read with git, never via ${{ }}, so a crafted
+        # commit message cannot inject shell. Reuses the pinned
+        # conventional-pre-commit hook + type list from
+        # .pre-commit-config.yaml, so CI matches local enforcement.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          MQ_BASE_SHA: ${{ github.event.merge_group.base_sha }}
+          MQ_HEAD_SHA: ${{ github.event.merge_group.head_sha }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="$PR_BASE_SHA"
+            head="HEAD"
+          else
+            base="$MQ_BASE_SHA"
+            head="$MQ_HEAD_SHA"
+          fi
+          fail=0
+          for sha in $(git rev-list --no-merges "$base..$head"); do
+            git log -1 --format=%B "$sha" > commit-msg.txt
+            echo "--- $sha $(git log -1 --format=%s "$sha")"
+            if ! uv run pre-commit run conventional-pre-commit \
+                --hook-stage commit-msg --commit-msg-filename commit-msg.txt; then
+              fail=1
+            fi
+          done
+          rm -f commit-msg.txt
+          exit "$fail"

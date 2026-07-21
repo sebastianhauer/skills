@@ -1,0 +1,74 @@
+[
+  {
+    "query": "just finished wiring up oauth login, what should my commit message be?",
+    "should_trigger": true
+  },
+  {
+    "query": "is this a feat or a refactor? i moved the retry logic into its own module but behavior is identical",
+    "should_trigger": true
+  },
+  {
+    "query": "my change touches both the api request schema and the react header component -- can i put two scopes in one commit?",
+    "should_trigger": true
+  },
+  {
+    "query": "review this commit message for me: 'Fixed bug in parser.'",
+    "should_trigger": true
+  },
+  {
+    "query": "how do i flag a commit as a breaking change in the subject line?",
+    "should_trigger": true
+  },
+  {
+    "query": "i bumped serde and regenerated the lockfile -- what type does that commit go under, chore or build?",
+    "should_trigger": true
+  },
+  {
+    "query": "tidy up this commit message before i push it: 'update stuff\n\nchanged some things in the store'",
+    "should_trigger": true
+  },
+  {
+    "query": "should editing code comments be a docs commit or a refactor?",
+    "should_trigger": true
+  },
+  {
+    "query": "writing the commit for the ci cache tweak -- what scope and type would you use?",
+    "should_trigger": true
+  },
+  {
+    "query": "how do i undo my last commit but keep the changes staged?",
+    "should_trigger": false
+  },
+  {
+    "query": "squash the last 3 commits on this branch into one",
+    "should_trigger": false
+  },
+  {
+    "query": "what should i name the branch for this new payments feature?",
+    "should_trigger": false
+  },
+  {
+    "query": "draft the PR description for this diff",
+    "should_trigger": false
+  },
+  {
+    "query": "generate a changelog for the v2.1 release from the git history",
+    "should_trigger": false
+  },
+  {
+    "query": "add a docstring to the parse_config function in src/main.rs",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the practical difference between git merge and git rebase?",
+    "should_trigger": false
+  },
+  {
+    "query": "help me resolve the merge conflict in store.py",
+    "should_trigger": false
+  },
+  {
+    "query": "set the git author email for just this repo",
+    "should_trigger": false
+  }
+]

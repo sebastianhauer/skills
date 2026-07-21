@@ -1,0 +1,11 @@
+# zizmor configuration. Shared by the local pre-commit hook and the
+# zizmor CI job so both enforce the same policy.
+#
+# Require every `uses:` clause to be pinned by full commit SHA. This is
+# already zizmor's default, but stating it explicitly keeps the repo's
+# supply-chain stance obvious and pins it against future default drift.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": hash-pin

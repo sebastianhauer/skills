@@ -1,0 +1,19 @@
+# Keep the SHA-pinned GitHub Actions current. Dependabot bumps each
+# `uses:` pin (updating the `# vX.Y.Z` comment too) so pinning does not
+# rot into stale, unpatched actions.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    # Wait 14 days after a release before opening a bump PR, so a freshly
+    # published (possibly compromised) version does not land immediately.
+    cooldown:
+      default-days: 14
+    # Collapse all action bumps into a single PR per run to keep review
+    # (and the required workflow-lint check) to one pass.
+    groups:
+      github-actions:
+        patterns:
+          - "*"

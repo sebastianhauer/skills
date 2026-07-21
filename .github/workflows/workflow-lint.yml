@@ -1,0 +1,87 @@
+name: Workflow lint
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  merge_group:
+
+# Deny by default; each job re-grants only what it needs.
+permissions: {}
+
+concurrency:
+  group: workflow-lint-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
+
+jobs:
+  # Syntax + expression linting for the workflows themselves.
+  actionlint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout only
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run actionlint
+        # Installer script pinned to the v1.7.12 commit SHA; the binary
+        # it downloads is pinned to the same release version.
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SCRIPT_SHA: 914e7df21a07ef503a81201c76d2b11c789d3fca
+        run: |
+          curl -fsSL -o download-actionlint.bash \
+            "https://raw.githubusercontent.com/rhysd/actionlint/${ACTIONLINT_SCRIPT_SHA}/scripts/download-actionlint.bash"
+          bash download-actionlint.bash "${ACTIONLINT_VERSION}"
+          ./actionlint -color
+
+  # Supply-chain / CI-security posture audit. Config in .poutine.yml.
+  poutine:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout only
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # poutine analyses full history
+          persist-credentials: false
+      - name: Run poutine
+        uses: boostsecurityio/poutine-action@e240ebd3eff8b2db5a8e5f6b28f58739d7db2247 # v1.1.4
+
+  # Workflow-security static analysis. Config in .github/zizmor.yml.
+  zizmor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout only
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
+        with:
+          # No GitHub Advanced Security here, so skip the SARIF upload
+          # (which would need security-events: write); fail the job on
+          # findings instead.
+          advanced-security: false
+
+  # Single stable status check to require in branch protection. Fails if
+  # any linter failed, was cancelled, or was skipped.
+  required:
+    needs: [actionlint, poutine, zizmor]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Fail unless every lint job succeeded
+        # Results arrive via env (never interpolated into the script
+        # body), matching the repo's no-${{ }}-in-run policy.
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "lint job results: $RESULTS"
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              echo "a required lint job did not succeed: $result"
+              exit 1
+            fi
+          done

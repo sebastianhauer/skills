@@ -1,0 +1,19 @@
+{
+  // Markdown lint rules for all *.md in the repo.
+  // Docs: https://github.com/DavidAnson/markdownlint#rules--aliases
+  "config": {
+    "default": true,
+    // 80-char lines to match the project documentation standard, but
+    // do not wrap code blocks or tables.
+    "MD013": { "line_length": 80, "code_blocks": false, "tables": false },
+    // Skills legitimately use inline HTML and repeated headings.
+    "MD033": false,
+    // SKILL.md files open with YAML front matter, not an H1.
+    "MD041": false,
+    // Require padded, aligned table columns -- the format mdformat
+    // produces. Matches the canonical assets/markdownlint.jsonc.
+    "MD060": { "style": "aligned" }
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules", ".venv", "dist"]
+}
