@@ -1,0 +1,21 @@
+{
+  "name": "psicode",
+  "owner": {
+    "name": "Sebastian Hauer",
+    "email": "hauer@psicode.com"
+  },
+  "metadata": {
+    "description": "Sebastian Hauer's personal collection of agent skills",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "conventional-commits",
+      "source": "./plugins/conventional-commits"
+    },
+    {
+      "name": "skill-authoring",
+      "source": "./plugins/skill-authoring"
+    }
+  ]
+}

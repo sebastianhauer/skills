@@ -1,0 +1,14 @@
+{
+  "name": "conventional-commits",
+  "version": "0.1.0",
+  "description": "Conventional Commits format and style rules for git commit messages",
+  "author": {
+    "name": "Sebastian Hauer",
+    "email": "hauer@psicode.com"
+  },
+  "license": "Apache-2.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Conventional Commits"
+  }
+}

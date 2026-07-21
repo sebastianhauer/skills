@@ -1,0 +1,24 @@
+{
+  // Canonical markdownlint config encoding these documentation
+  // standards. Copy into a repo root as .markdownlint.jsonc when the
+  // repo has none; an existing repo-local config always wins.
+  // Defaults conflict with the standards without the tuning below:
+  // stock MD013 counts tables and code blocks against the line limit,
+  // which the table rule ("as wide as the data requires") forbids.
+  "default": true,
+  "MD004": {
+    "style": "dash"
+  },
+  "MD013": {
+    "line_length": 80,
+    "code_blocks": false,
+    "tables": false,
+    "headings": true
+  },
+  // MD060 (table-column-style) needs markdownlint >= 0.38 /
+  // markdownlint-cli2 >= 0.18; it machine-enforces the padded-pipe
+  // table rule.
+  "MD060": {
+    "style": "aligned"
+  }
+}

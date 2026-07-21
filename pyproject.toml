@@ -1,0 +1,104 @@
+# Tooling + dev-environment config for the skills repo.
+#
+# This project is NOT a published Python package -- it is a collection
+# of agent skills. This file exists only to pin the dev toolchain
+# (ruff, pyright, mypy, pytest, pre-commit) and target Python 3.9, the
+# lowest version any shipped skill script must support.
+
+[project]
+name = "psicode-skills"
+version = "0.1.0"
+description = "Dev toolchain for a personal collection of agent skills"
+requires-python = ">=3.9"
+
+[dependency-groups]
+dev = [
+  "pre-commit>=4",
+  "ruff>=0.9",
+  "pyright>=1.1.390",
+  "mypy>=1.14",
+  "pytest>=8",
+  # Markdown formatter: aligns GFM tables and wraps prose at 80 cols.
+  # The plugins pin mdformat to the 0.7.x line (they cap <0.8), so cap
+  # the core the same way. mdformat-gfm pulls in mdformat-tables, but
+  # list it explicitly so the table plugin cannot drop out of the
+  # resolve. mdformat-frontmatter is mandatory: without it mdformat
+  # mistakes a SKILL.md's `---` YAML frontmatter for a thematic break
+  # and destroys it.
+  "mdformat>=0.7.16,<0.8",
+  "mdformat-gfm>=0.3",
+  "mdformat-tables>=0.4",
+  "mdformat-frontmatter>=2",
+]
+
+[tool.uv]
+# Not an installable package -- just an environment for the dev tools.
+package = false
+# Use a vanilla stock CPython (python-build-standalone) that uv manages,
+# never a system/Anaconda interpreter. Guarantees a reproducible,
+# representative 3.9 runtime for every contributor and CI runner.
+python-preference = "only-managed"
+
+# ---------------------------------------------------------------------------
+# ruff -- lint + format. Target the lowest supported runtime (3.9) so it
+# flags syntax/APIs unavailable there.
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+# Skill scripts live under plugins/*/skills/*/scripts; tests at repo root.
+extend-exclude = [".venv", "dist"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",   # pycodestyle
+  "F",        # pyflakes
+  "I",        # isort
+  "UP",       # pyupgrade (keeps code idiomatic for the target version)
+  "B",        # flake8-bugbear
+  "SIM",      # flake8-simplify
+  "FA102",    # require `from __future__ import annotations` when a file
+              # uses PEP 604 unions that are unsafe on the 3.9 runtime.
+              # Surgical: does NOT force the import on old-typing files
+              # (that would be FA100, deliberately not selected).
+]
+
+[tool.ruff.lint.per-file-ignores]
+# runtime.py is a version guard that must parse and run on ancient
+# interpreters; it uses %-formatting deliberately because f-strings
+# would fail at parse time before the guard can report the problem.
+"plugins/skill-authoring/skills/skill-authoring/scripts/skillkit/runtime.py" = ["UP031"]
+
+# ---------------------------------------------------------------------------
+# pyright -- fast type checker (pre-push). Resolves imports against the
+# project venv and type-checks as if running on 3.9.
+# ---------------------------------------------------------------------------
+[tool.pyright]
+include = ["plugins", "tests", "conftest.py"]
+exclude = ["**/__pycache__", ".venv", "dist"]
+pythonVersion = "3.9"
+typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"
+
+# ---------------------------------------------------------------------------
+# mypy -- second type checker (pre-push) for maximum coverage. Both
+# checkers target 3.9; running both is intentional belt-and-suspenders.
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.9"
+files = ["plugins", "tests", "conftest.py"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+# Tests load scripts dynamically via importlib; don't require them to
+# be a typed package.
+namespace_packages = true
+explicit_package_bases = true
+
+# ---------------------------------------------------------------------------
+# pytest -- unit tests live at the repo root under tests/, deliberately
+# OUTSIDE plugins/ so they are never shipped when a skill is installed.
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]

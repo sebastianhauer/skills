@@ -1,0 +1,10 @@
+{
+  "name": "skill-authoring",
+  "version": "0.1.0",
+  "description": "Best practices for authoring Agent Skills and SKILL.md files",
+  "author": {
+    "name": "Sebastian Hauer",
+    "email": "hauer@psicode.com"
+  },
+  "license": "Apache-2.0"
+}

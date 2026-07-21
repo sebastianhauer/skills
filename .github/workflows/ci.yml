@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  merge_group:
+
+# Deny by default; each job re-grants only what it needs.
+permissions: {}
+
+# Newer runs supersede older ones, but never cancel a merge-queue run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
+
+jobs:
+  # Static analysis targets Python 3.9 regardless of the runner, so it
+  # runs once rather than per matrix interpreter.
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout only
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: true
+      - run: uv sync
+      - run: make check-types check-markdown
+
+  # Prove scripts both parse (py_compile) and behave (pytest) on the
+  # 3.9 floor and the newest stable ceiling, each on a vanilla stock
+  # CPython that uv provisions.
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout only
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync
+      - run: make check-python check-unit

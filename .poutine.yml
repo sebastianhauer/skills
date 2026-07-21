@@ -1,0 +1,14 @@
+# poutine configuration.
+#
+# astral-sh (setup-uv) and zizmorcore (zizmor-action) are reputable,
+# widely used vendors, but neither is a GitHub "verified creator", so
+# poutine emits a note-level `github_action_from_unverified_creator_used`
+# finding for each. We deliberately adopt both, so skip the note for
+# these two actions only (all other findings, and this rule for any
+# other action, still surface). boostsecurityio/poutine-action is
+# poutine's own vendor and is not flagged.
+skip:
+  - rule: github_action_from_unverified_creator_used
+    purl:
+      - pkg:githubactions/astral-sh/setup-uv
+      - pkg:githubactions/zizmorcore/zizmor-action
