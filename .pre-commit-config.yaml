@@ -32,27 +32,23 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
 
-  # --- conventional commits (mandatory) ------------------------------------
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.4.0
+  # --- conventional commits + length limits (mandatory) --------------------
+  # commitlint validates format (config-conventional's default type-enum
+  # is the same 11 types the old conventional-pre-commit args listed) and
+  # the house length rules from commitlint.config.mjs: header <= 70,
+  # body wrap <= 72. Local node hook pinning only the runtime packages,
+  # same pattern as markdownlint-cli2 below. CI (commit-messages.yml)
+  # runs this exact hook, so local and CI enforcement cannot drift.
+  - repo: local
     hooks:
-      - id: conventional-pre-commit
+      - id: commitlint
+        name: commitlint
+        language: node
+        additional_dependencies:
+          - "@commitlint/cli@21.2.1"
+          - "@commitlint/config-conventional@21.2.0"
+        entry: commitlint --edit
         stages: [commit-msg]
-        # Allowed types mirror prtop's commitlint type-enum.
-        args:
-          - --strict
-          - --
-          - feat
-          - fix
-          - docs
-          - refactor
-          - perf
-          - test
-          - build
-          - style
-          - ci
-          - revert
-          - chore
 
   # --- markdown format + lint (all *.md) -----------------------------------
   # mdformat runs FIRST: it aligns/pads GFM tables and reflows prose to

@@ -26,7 +26,10 @@ request.
 - A PR merges once CI is green (`lint`, `test` on 3.9 and 3.13,
   `conventional-commits`) and it has one approving review.
 - PRs **squash-merge**: the PR title and body become the final commit message,
-  so write them like one.
+  so write them like one. CI lints them as one -- the same commitlint rules that
+  gate branch commits run against the PR title + body on every edit. The `(#N)`
+  GitHub appends to the squash subject at merge time is machine metadata and
+  does not count against the 70-character subject limit.
 
 ## Commit authorship
 
@@ -38,9 +41,11 @@ itself.
 
 ## Git hooks
 
-- **commit-msg** -- [Conventional Commits](https://www.conventionalcommits.org)
-  are mandatory (types:
-  `feat fix docs refactor perf test build style ci revert chore`).
+- **commit-msg** -- [commitlint](https://commitlint.js.org) enforces
+  [Conventional Commits](https://www.conventionalcommits.org) (the 11
+  `config-conventional` types:
+  `feat fix docs refactor perf test build style ci revert chore`), a subject of
+  at most 70 characters, and a body wrapped at 72 (`commitlint.config.mjs`).
 - **pre-commit** (fast) -- hygiene, `ruff` lint + format, `markdownlint`.
 - **pre-push** (slower) -- `py_compile`, `pyright`, `mypy`, `pytest`.
 
