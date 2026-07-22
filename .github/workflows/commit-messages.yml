@@ -2,6 +2,9 @@ name: Commit messages
 
 on:
   pull_request:
+    # Default types plus `edited`, so PR title/body fixes re-trigger the
+    # squash-message lint below.
+    types: [opened, edited, synchronize, reopened]
   merge_group:
 
 # Deny by default; the one job re-grants only what it needs.
@@ -25,12 +28,12 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync
-      - name: Check commit messages are Conventional Commits
+      - name: Check commit messages with commitlint
         # SHAs come in via env (never interpolated into the script);
         # each message is read with git, never via ${{ }}, so a crafted
-        # commit message cannot inject shell. Reuses the pinned
-        # conventional-pre-commit hook + type list from
-        # .pre-commit-config.yaml, so CI matches local enforcement.
+        # commit message cannot inject shell. Runs the pinned commitlint
+        # hook from .pre-commit-config.yaml (rules in
+        # commitlint.config.mjs), so CI matches local enforcement.
         env:
           EVENT_NAME: ${{ github.event_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -44,14 +47,46 @@ jobs:
             base="$MQ_BASE_SHA"
             head="$MQ_HEAD_SHA"
           fi
+          msgfile="$RUNNER_TEMP/commit-msg.txt"
           fail=0
           for sha in $(git rev-list --no-merges "$base..$head"); do
-            git log -1 --format=%B "$sha" > commit-msg.txt
+            git log -1 --format=%B "$sha" > "$msgfile"
+            if [ "$EVENT_NAME" = "merge_group" ]; then
+              # The merge-queue head is the prospective squash commit
+              # titled "<PR title> (#N)". The machine-appended suffix is
+              # not part of the author's subject, so strip it before the
+              # 70-char header check. pull_request commits keep any
+              # author-written "(#N)" and it counts against the limit.
+              sed -i '1s/ (#[0-9]\{1,\})$//' "$msgfile"
+            fi
             echo "--- $sha $(git log -1 --format=%s "$sha")"
-            if ! uv run pre-commit run conventional-pre-commit \
-                --hook-stage commit-msg --commit-msg-filename commit-msg.txt; then
+            if ! uv run pre-commit run commitlint \
+                --hook-stage commit-msg --commit-msg-filename "$msgfile"; then
               fail=1
             fi
           done
-          rm -f commit-msg.txt
           exit "$fail"
+      - name: Check PR title + body as the future squash commit message
+        # Runs even when the commit check above fails, so an author gets
+        # both verdicts in one CI round instead of discovering a bad PR
+        # title on the next push.
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        # Squash merge lands the PR title as the commit subject and the
+        # PR body as the commit body, so lint them as one message. Title
+        # and body come in via env only -- both are attacker-controlled
+        # text and must never be ${{ }}-interpolated into the script.
+        # The "(#N)" GitHub appends at merge time is machine metadata,
+        # excluded from the 70-char budget (the merge_group strip above
+        # keeps the two checks consistent).
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          msgfile="$RUNNER_TEMP/squash-msg.txt"
+          if [ -n "$PR_BODY" ]; then
+            printf '%s\n\n%s\n' "$PR_TITLE" "$PR_BODY" | tr -d '\r' > "$msgfile"
+          else
+            printf '%s\n' "$PR_TITLE" > "$msgfile"
+          fi
+          uv run pre-commit run commitlint \
+            --hook-stage commit-msg --commit-msg-filename "$msgfile"
