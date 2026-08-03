@@ -1,0 +1,82 @@
+[
+  {
+    "query": "can you land this fix for me?",
+    "should_trigger": true
+  },
+  {
+    "query": "ship the retry-backoff change end to end",
+    "should_trigger": true
+  },
+  {
+    "query": "finish this up and get it merged",
+    "should_trigger": true
+  },
+  {
+    "query": "take this branch through a PR and don't stop until it's in",
+    "should_trigger": true
+  },
+  {
+    "query": "i've got the auth refactor half done on this branch, carry it the rest of the way to merged",
+    "should_trigger": true
+  },
+  {
+    "query": "land ABC-142, the tracker issue has the done conditions",
+    "should_trigger": true
+  },
+  {
+    "query": "get this work merged into master, run whatever checks and reviews we need first",
+    "should_trigger": true
+  },
+  {
+    "query": "put up a merge request for this and see it through to merge",
+    "should_trigger": true
+  },
+  {
+    "query": "this feature is done -- verify it, get it reviewed, commit it, merge it",
+    "should_trigger": true
+  },
+  {
+    "query": "i want this change landed today, handle the review cycle too",
+    "should_trigger": true
+  },
+  {
+    "query": "review my branch before i push it",
+    "should_trigger": false
+  },
+  {
+    "query": "give me a second opinion on this diff, fresh eyes",
+    "should_trigger": false
+  },
+  {
+    "query": "watch PR 412 and answer the review bot comments as they come in",
+    "should_trigger": false
+  },
+  {
+    "query": "copilot left comments on my open PR, go address them",
+    "should_trigger": false
+  },
+  {
+    "query": "write the PR description for this diff",
+    "should_trigger": false
+  },
+  {
+    "query": "just open a pull request for this branch, nothing else",
+    "should_trigger": false
+  },
+  {
+    "query": "what should this commit message be?",
+    "should_trigger": false
+  },
+  {
+    "query": "what should i name the branch for this payments work?",
+    "should_trigger": false
+  },
+  {
+    "query": "deploy the current master to staging",
+    "should_trigger": false
+  },
+  {
+    "query": "add a null check in parse_config and run the tests",
+    "should_trigger": false
+  }
+]

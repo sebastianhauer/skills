@@ -41,6 +41,7 @@ plugin marketplace. Each skill is its own plugin, so install them individually:
 /plugin marketplace add sebastianhauer/skills
 /plugin install skill-authoring@psicode
 /plugin install conventional-commits@psicode
+/plugin install land-it@psicode
 ```
 
 ### Codex plugin marketplace
@@ -51,7 +52,8 @@ a plugin from the Codex Plugins directory (the `/plugins` browser):
 
 ```bash
 codex plugin marketplace add sebastianhauer/skills
-# then open /plugins in Codex and install conventional-commits / skill-authoring
+# then open /plugins in Codex and install any of conventional-commits,
+# land-it, or skill-authoring
 ```
 
 ### Manual install

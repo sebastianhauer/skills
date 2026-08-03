@@ -17,6 +17,18 @@
       "category": "Productivity"
     },
     {
+      "name": "land-it",
+      "source": {
+        "source": "local",
+        "path": "./plugins/land-it"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "skill-authoring",
       "source": {
         "source": "local",
