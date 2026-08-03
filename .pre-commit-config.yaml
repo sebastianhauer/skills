@@ -55,12 +55,14 @@ repos:
   # <=80 cols (--wrap 80), which markdownlint can only flag, not fix.
   # Provisioned in the uv dev group, so run it through `uv run` like the
   # other Python-hosted tools rather than pre-commit's own venv.
+  # Flags MUST match the Makefile's format/check-markdown targets, or this
+  # hook reformats a file into a state CI then rejects.
   - repo: local
     hooks:
       - id: mdformat
-        name: mdformat (align tables, wrap prose at 80)
+        name: mdformat (align tables, wrap prose at 80, number lists)
         language: system
-        entry: uv run mdformat --wrap 80
+        entry: uv run mdformat --wrap 80 --number
         types: [markdown]
 
   # markdownlint then lints the freshly formatted output (incl. MD060,
