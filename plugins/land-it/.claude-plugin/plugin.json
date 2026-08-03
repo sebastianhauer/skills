@@ -1,0 +1,10 @@
+{
+  "name": "land-it",
+  "version": "0.1.0",
+  "description": "Carries a code change from problem through verification, independent review, and an approved commit to a merged change request",
+  "author": {
+    "name": "Sebastian Hauer",
+    "email": "hauer@psicode.com"
+  },
+  "license": "Apache-2.0"
+}

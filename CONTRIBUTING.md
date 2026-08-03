@@ -68,7 +68,9 @@ syntax stays 3.9-safe. Ruff `FA102` enforces it, and the test files under
 
 Tests live at the repo root under `tests/`, deliberately **outside** `plugins/`,
 so `npx skills add` never copies them. Mirror each skill under
-`tests/<skill_name>/`. Three fixtures reach a skill's code:
+`tests/<skill_name>/`, where `<skill_name>` is the plugin directory name with
+hyphens replaced by underscores, following Python module naming: `land-it` is
+tested under `tests/land_it/`. Three fixtures reach a skill's code:
 
 ```python
 def test_unit(load_package):     # package submodule, relative imports ok
@@ -163,6 +165,16 @@ paths.
      "category": "Productivity"
    }
    ```
+
+5. Add the plugin to the install lists in [README.md](./README.md) -- the Claude
+   `/plugin install <name>@psicode` block and the Codex comment naming the
+   installable plugins. Nothing generates these, so a new plugin is invisible to
+   readers until it is listed.
+
+6. For a skill whose triggering is high-value or ambiguous, add a trigger eval
+   set at `tests/<skill_name>/eval_set.json` with near-miss negatives drawn from
+   the skills it could be confused with, then measure it with the authoring
+   skill's `trigger_eval.py`.
 
 ## Third-party code
 
