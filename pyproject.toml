@@ -19,6 +19,9 @@ dev = [
   "mypy>=1.14",
   "pytest>=8",
   # Markdown formatter: aligns GFM tables and wraps prose at 80 cols.
+  # Run with --number: skills are read as raw text by an agent, not
+  # rendered, so mdformat's default of collapsing every ordered-list
+  # marker to "1." would erase the ordering from a numbered rule.
   # The plugins pin mdformat to the 0.7.x line (they cap <0.8), so cap
   # the core the same way. mdformat-gfm pulls in mdformat-tables, but
   # list it explicitly so the table plugin cannot drop out of the

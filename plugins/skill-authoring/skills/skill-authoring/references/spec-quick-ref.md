@@ -107,8 +107,8 @@ Static resources not loaded into context but used in output:
 Three loading levels manage context efficiently:
 
 1. **Metadata** -- `name` and `description`, loaded at startup for ALL skills
-1. **Instructions** -- SKILL.md body, loaded when the skill activates
-1. **Resources** -- `scripts/`, `references/`, `assets/`, loaded only when
+2. **Instructions** -- SKILL.md body, loaded when the skill activates
+3. **Resources** -- `scripts/`, `references/`, `assets/`, loaded only when
    needed; scripts can execute without entering context
 
 What each level costs, and the size limits, are covered by Token budget and the

@@ -135,16 +135,16 @@ paths.
    The directory name must match the `name` field in its `SKILL.md` frontmatter,
    which the scaffolder handles.
 
-1. Fill in the `SKILL.md`; add a per-skill `LICENSE`.
+2. Fill in the `SKILL.md`; add a per-skill `LICENSE`.
 
-1. Add a plugin manifest at
+3. Add a plugin manifest at
    `plugins/<new-skill-name>/.claude-plugin/plugin.json` (at minimum a `name`
    matching the directory; skills auto-discover under strict mode) **and** a
    `plugins/<new-skill-name>/.codex-plugin/plugin.json` (`name`, semver
    `version`, `description`, `skills: "./skills/"`, and an
    `interface.displayName`). Keep `version` in sync between the two.
 
-1. Add an entry to **both** root marketplaces -- this two-marketplace upkeep is
+4. Add an entry to **both** root marketplaces -- this two-marketplace upkeep is
    manual. In `.claude-plugin/marketplace.json` (Claude schema, string
    `source`):
 

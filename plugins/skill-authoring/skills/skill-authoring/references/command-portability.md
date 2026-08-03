@@ -29,12 +29,12 @@ When choosing how to implement a command or pipeline:
 1. **Python (stdlib)** -- preferred for scripts; the only option that runs
    unmodified on macOS, Linux, and Windows. Use `pathlib`, explicit UTF-8
    encoding, and avoid shelling out.
-1. **POSIX shell + common Unix tools** -- for doc examples aimed at Unix shells,
+2. **POSIX shell + common Unix tools** -- for doc examples aimed at Unix shells,
    and for scripts in skills that explicitly scope Windows out: `sh`, `grep`,
    `awk`, `sed`, `cut`, `sort`, `xargs`, `tr`
-1. **Optional tools with availability check** -- `jq`, `yq`, `rg` are fine but
+3. **Optional tools with availability check** -- `jq`, `yq`, `rg` are fine but
    gate on `command -v` first
-1. **PowerShell or batch** -- only for inherently Windows-specific tasks; prefer
+4. **PowerShell or batch** -- only for inherently Windows-specific tasks; prefer
    PowerShell (it has a linter) over batch
 
 ## Script linting

@@ -39,7 +39,7 @@ bootstrap: ## Rebuild the vanilla stock 3.9 venv and install git hooks
 format: ## Auto-fix: ruff (lint --fix + format) then mdformat
 	$(UV) run ruff check --fix .
 	$(UV) run ruff format .
-	git ls-files -z '*.md' | xargs -0 $(UV) run mdformat --wrap 80
+	git ls-files -z '*.md' | xargs -0 $(UV) run mdformat --wrap 80 --number
 
 ##@ Quality gates
 
@@ -56,7 +56,7 @@ check-types: ## pyright + mypy (both target 3.9)
 	$(UV) run mypy
 
 check-markdown: ## mdformat --check + markdownlint over all Markdown
-	git ls-files -z '*.md' | xargs -0 $(UV) run mdformat --wrap 80 --check
+	git ls-files -z '*.md' | xargs -0 $(UV) run mdformat --wrap 80 --number --check
 	$(UV) run pre-commit run markdownlint-cli2 --all-files
 
 check-unit: ## pytest: example unit + CLI + import-smoke net

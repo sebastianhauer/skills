@@ -81,9 +81,9 @@ behavior.
 Suggested process:
 
 1. Use a fresh readonly agent context that did not author the skill
-1. Use `3-5` natural prompts that should trigger the skill
-1. Do not name the skill explicitly in the prompts
-1. Compare the agent's behavior against the intended workflow
+2. Use `3-5` natural prompts that should trigger the skill
+3. Do not name the skill explicitly in the prompts
+4. Compare the agent's behavior against the intended workflow
 
 Score:
 
@@ -108,12 +108,12 @@ documentation, so the skill fills measured gaps instead of imagined ones.
 Process (fully conversational; no viewers or servers):
 
 1. Pick 2-3 realistic tasks the skill should improve.
-1. For each task, run two fresh subagents in the same turn: one told to read and
+2. For each task, run two fresh subagents in the same turn: one told to read and
    follow the skill, one without it (or with the previous version when improving
    an existing skill). Save outputs to separate directories.
-1. Compare the outputs with the user in chat: correctness, convention adherence,
+3. Compare the outputs with the user in chat: correctness, convention adherence,
    and cost (tokens/time per run when the harness reports them).
-1. Feed the differences back into the skill; rerun the pair after meaningful
+4. Feed the differences back into the skill; rerun the pair after meaningful
    edits.
 
 If the with-skill runs are not clearly better, the skill body is not earning its
@@ -211,12 +211,12 @@ three modules outperform larger bundles (SkillsBench,
 ### How to split
 
 1. Identify the distinct responsibilities
-1. Create a new skill directory for each
-1. Move the relevant SKILL.md content and references
-1. Write focused descriptions for each new skill
-1. If the original skill was a workflow combining the parts, keep a thin
+2. Create a new skill directory for each
+3. Move the relevant SKILL.md content and references
+4. Write focused descriptions for each new skill
+5. If the original skill was a workflow combining the parts, keep a thin
    orchestration skill that references the others
-1. Review each new skill against this rubric
+6. Review each new skill against this rubric
 
 ### When NOT to split
 
